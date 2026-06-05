@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adi Breathe — Panel & Sewa Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#03040a;--deep:#060b18;--mid:#09112a;
+  --card:rgba(8,14,32,0.75);--border:#141d3a;--border-glow:rgba(79,140,255,0.3);
+  --blue:#4f8cff;--purple:#a855f7;--cyan:#22d3ee;--green:#22c55e;
+  --text:#e8eeff;--muted:#6b7db3;--dim:#2e3a5c;
+  --r:16px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* CANVAS */
+#cv{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* NEBULA */
+.neb{position:fixed;inset:0;z-index:0;pointer-events:none}
+.neb span{position:absolute;border-radius:50%;filter:blur(90px);animation:nbdrift 18s ease-in-out infinite alternate}
+.neb span:nth-child(1){width:700px;height:700px;background:radial-gradient(circle,rgba(79,140,255,0.07),transparent 65%);top:-200px;left:-150px;animation-delay:0s}
+.neb span:nth-child(2){width:600px;height:600px;background:radial-gradient(circle,rgba(168,85,247,0.06),transparent 65%);top:25%;right:-200px;animation-delay:-9s}
+.neb span:nth-child(3){width:500px;height:500px;background:radial-gradient(circle,rgba(34,211,238,0.05),transparent 65%);bottom:5%;left:15%;animation-delay:-5s}
+@keyframes nbdrift{0%{transform:translate(0,0)}100%{transform:translate(30px,25px)}}
+
+/* PLANET DECO */
+.plnt{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.plnt1{width:420px;height:420px;top:-120px;right:-100px;background:radial-gradient(circle at 38% 38%,rgba(79,60,180,0.12),transparent 65%);filter:blur(40px)}
+.plnt2{width:260px;height:260px;bottom:10%;left:-60px;background:radial-gradient(circle at 55% 35%,rgba(34,211,238,0.08),transparent 65%);filter:blur(30px)}
+
+.wrap{position:relative;z-index:1}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:200;height:64px;
+  display:flex;align-items:center;justify-content:space-between;padding:0 6%;
+  background:rgba(3,4,10,0.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);box-shadow:0 0 12px var(--blue);animation:pdot 2.2s ease-in-out infinite}
+@keyframes pdot{0%,100%{box-shadow:0 0 8px var(--blue)}50%{box-shadow:0 0 24px var(--blue),0 0 48px rgba(79,140,255,0.3)}}
+.nav-ul{display:flex;gap:26px;list-style:none}
+.nav-ul a{font-size:0.82rem;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-ul a:hover{color:var(--text)}
+.nav-btn{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;padding:8px 20px;border-radius:100px;font-size:0.82rem;font-weight:500;text-decoration:none;transition:.2s;box-shadow:0 0 18px rgba(79,140,255,0.25)}
+.nav-btn:hover{opacity:.85;transform:translateY(-1px)}
+
+/* HERO */
+.hero{padding:100px 6% 80px;max-width:860px;margin:0 auto;text-align:center}
+.badge{display:inline-flex;align-items:center;gap:7px;background:rgba(79,140,255,0.09);border:1px solid rgba(79,140,255,0.22);border-radius:100px;padding:6px 16px;font-size:0.73rem;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--blue);margin-bottom:30px;animation:fup .8s ease both}
+.live{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:pdot 1.8s ease-in-out infinite}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-0.04em;margin-bottom:20px;animation:fup .8s .1s ease both}
+.grad{background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hdesc{font-size:.97rem;color:var(--muted);max-width:480px;margin:0 auto 36px;line-height:1.75;font-weight:300;animation:fup .8s .2s ease both}
+.hbtns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fup .8s .3s ease both}
+.btn-p{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;padding:12px 28px;border-radius:100px;font-size:.87rem;font-weight:500;text-decoration:none;transition:.2s;box-shadow:0 0 22px rgba(79,140,255,0.3);display:inline-block}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 0 38px rgba(79,140,255,0.45)}
+.btn-g{background:transparent;color:var(--text);padding:12px 28px;border-radius:100px;font-size:.87rem;font-weight:500;text-decoration:none;border:1px solid var(--border);transition:.2s;display:inline-block}
+.btn-g:hover{border-color:var(--border-glow);transform:translateY(-2px)}
+.stats{display:flex;justify-content:center;gap:0;margin:52px auto 0;max-width:560px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--card);backdrop-filter:blur(10px);animation:fup .8s .4s ease both}
+.s-item{flex:1;padding:20px 14px;text-align:center;border-right:1px solid var(--border)}
+.s-item:last-child{border-right:none}
+.s-num{display:block;font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-0.03em}
+.s-lbl{font-size:.71rem;color:var(--muted);margin-top:2px}
+
+/* SECTION */
+.sec{padding:72px 6%;max-width:1100px;margin:0 auto}
+.slbl{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:9px}
+.stitle{font-family:'Syne',sans-serif;font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.03em;margin-bottom:11px}
+.sdesc{font-size:.88rem;color:var(--muted);max-width:460px;line-height:1.7}
+
+/* PANEL GRID */
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:38px}
+.panel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 18px;backdrop-filter:blur(10px);transition:.25s;position:relative;overflow:hidden}
+.panel-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(79,140,255,0.04),transparent);opacity:0;transition:.25s}
+.panel-card:hover{border-color:var(--border-glow);transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,0.35),0 0 30px rgba(79,140,255,0.08)}
+.panel-card:hover::after{opacity:1}
+.pc-gb{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pc-label{font-size:.72rem;color:var(--muted);margin-bottom:12px}
+.pc-price{font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.pc-note{font-size:.7rem;color:var(--dim)}
+.pc-badge{position:absolute;top:10px;right:10px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-size:.58rem;font-weight:700;padding:3px 8px;border-radius:100px;letter-spacing:.06em;text-transform:uppercase}
+
+/* BOT TABS */
+.bot-tabs{display:flex;gap:8px;margin-top:36px;margin-bottom:28px;flex-wrap:wrap}
+.tab-btn{padding:8px 18px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;font-weight:500;cursor:pointer;transition:.2s;font-family:'Inter',sans-serif}
+.tab-btn.active{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;border:none;box-shadow:0 0 16px rgba(79,140,255,0.3)}
+.tab-btn:hover:not(.active){border-color:var(--border-glow);color:var(--text)}
+.bot-content{display:none}
+.bot-content.active{display:block}
+
+/* BOT SEWA GRID */
+.sewa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.sewa-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 16px;backdrop-filter:blur(10px);transition:.25s;cursor:pointer;text-decoration:none;display:block}
+.sewa-card:hover{border-color:var(--border-glow);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,0.3)}
+.sewa-card.perm{border-color:rgba(168,85,247,0.35);background:linear-gradient(145deg,rgba(168,85,247,0.06),rgba(79,140,255,0.04))}
+.sewa-card.perm:hover{border-color:rgba(168,85,247,0.55)}
+.sc-dur{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sc-lbl{font-size:.7rem;color:var(--muted);margin-bottom:11px}
+.sc-price{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:var(--text)}
+.sc-mood{font-size:.67rem;color:var(--muted);margin-top:4px;font-style:italic;line-height:1.4}
+.sc-badge{display:inline-block;margin-top:7px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);color:#c084fc;font-size:.62rem;font-weight:600;padding:2px 8px;border-radius:100px}
+
+/* PREMIUM BOT */
+.prem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.prem-card{background:linear-gradient(145deg,rgba(245,158,11,0.06),rgba(79,140,255,0.04));border:1px solid rgba(245,158,11,0.25);border-radius:var(--r);padding:20px 16px;backdrop-filter:blur(10px);transition:.25s;cursor:pointer;text-decoration:none;display:block}
+.prem-card:hover{border-color:rgba(245,158,11,0.45);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,0.3)}
+.prem-dur{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.prem-lbl{font-size:.7rem;color:var(--muted);margin-bottom:11px}
+.prem-price{font-family:'Space Mono',monospace;font-size:.95rem;font-weight:700;color:var(--text)}
+.crown{font-size:.72rem;color:#f59e0b;margin-top:5px}
+
+/* HISTORY */
+.history-wrap{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;backdrop-filter:blur(12px);margin-top:20px}
+.hist-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.hist-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.hist-count{font-size:.75rem;color:var(--muted);background:rgba(79,140,255,0.1);border:1px solid rgba(79,140,255,0.2);padding:3px 10px;border-radius:100px;color:var(--blue)}
+.hist-empty{text-align:center;padding:40px 0;color:var(--muted);font-size:.85rem}
+.hist-empty .ico{font-size:2.2rem;display:block;margin-bottom:10px;opacity:.4}
+.hist-list{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto;padding-right:4px}
+.hist-list::-webkit-scrollbar{width:4px}
+.hist-list::-webkit-scrollbar-track{background:transparent}
+.hist-list::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+.hist-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.hi-left{flex:1}
+.hi-name{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:3px}
+.hi-prod{font-size:.75rem;color:var(--muted)}
+.hi-right{text-align:right;flex-shrink:0}
+.hi-price{font-family:'Space Mono',monospace;font-size:.82rem;color:var(--blue)}
+.hi-time{font-size:.68rem;color:var(--dim);margin-top:2px}
+.hi-badge{font-size:.6rem;font-weight:600;padding:2px 7px;border-radius:100px;margin-top:4px;display:inline-block}
+.hi-badge.panel{background:rgba(79,140,255,0.15);color:var(--blue);border:1px solid rgba(79,140,255,0.25)}
+.hi-badge.sewa{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.25)}
+.hi-badge.premium{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.25)}
+
+/* STEPS */
+.steps-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:28px;margin-top:44px}
+.step-c{position:relative}
+.sn{font-family:'Space Mono',monospace;font-size:.63rem;letter-spacing:.14em;color:var(--blue);margin-bottom:12px;display:block}
+.si{font-size:1.7rem;margin-bottom:12px;display:block;filter:drop-shadow(0 0 10px rgba(79,140,255,0.4))}
+.st{font-family:'Syne',sans-serif;font-size:.97rem;font-weight:700;margin-bottom:7px}
+.sd{font-size:.82rem;color:var(--muted);line-height:1.68}
+
+/* TESTI */
+.testi-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:38px}
+.tc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;backdrop-filter:blur(10px);transition:.22s}
+.tc:hover{transform:translateY(-3px);border-color:var(--border-glow)}
+.t-stars{color:#f59e0b;font-size:.75rem;letter-spacing:3px;margin-bottom:12px}
+.t-text{font-size:.84rem;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.t-auth{display:flex;align-items:center;gap:9px}
+.t-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.t-name{font-size:.8rem;font-weight:600}
+.t-sub{font-size:.71rem;color:var(--dim)}
+
+/* FAQ */
+.faq-w{max-width:680px;margin-top:38px}
+.fq{border-bottom:1px solid var(--border);padding:18px 0}
+.fq-q{font-size:.9rem;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;user-select:none}
+.fq-q .ico{color:var(--muted);font-size:1rem;transition:transform .25s;flex-shrink:0}
+.fq.open .ico{transform:rotate(45deg)}
+.fq-a{font-size:.83rem;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
+.fq.open .fq-a{max-height:200px;padding-top:11px}
+
+/* CTA */
+.cta-b{margin:20px 6% 72px;max-width:1100px;margin-left:auto;margin-right:auto;background:linear-gradient(135deg,var(--mid),rgba(25,15,55,0.9));border:1px solid rgba(79,140,255,0.25);border-radius:20px;padding:60px 40px;text-align:center;position:relative;overflow:hidden}
+.cta-b::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(79,140,255,0.07),transparent 60%);pointer-events:none}
+.cta-b h2{font-family:'Syne',sans-serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.03em;margin-bottom:12px;position:relative}
+.cta-b p{color:var(--muted);margin-bottom:28px;font-size:.9rem;position:relative}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:32px 6%;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.f-logo{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800}
+.f-logo span{background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.f-links{display:flex;gap:18px;list-style:none}
+.f-links a{font-size:.78rem;color:var(--dim);text-decoration:none;transition:color .2s}
+.f-links a:hover{color:var(--text)}
+.f-cr{font-size:.75rem;color:var(--dim);text-align:right;line-height:1.6}
+.f-cr strong{color:var(--blue)}
+.f-cr a{color:var(--blue);text-decoration:none}
+
+/* WA FLOAT */
+.wa{position:fixed;bottom:26px;right:26px;z-index:500;width:52px;height:52px;background:linear-gradient(135deg,#25D366,#128C7E);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;text-decoration:none;box-shadow:0 4px 20px rgba(37,211,102,0.4);transition:.2s}
+.wa:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(37,211,102,0.55)}
+
+/* ADMIN BTN */
+.adm-trig{position:fixed;bottom:26px;left:26px;z-index:500;width:38px;height:38px;background:rgba(8,14,32,0.8);border:1px solid var(--border);color:var(--muted);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;backdrop-filter:blur(8px);transition:.2s}
+.adm-trig:hover{border-color:var(--border-glow);color:var(--text)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.on{display:flex}
+.mbox{background:linear-gradient(145deg,#0a1128,#060b18);border:1px solid rgba(79,140,255,0.25);border-radius:20px;padding:36px;width:min(480px,92vw);position:relative;box-shadow:0 0 80px rgba(79,140,255,0.12);animation:mpop .35s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes mpop{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:none}}
+.mclose{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:1.25rem;cursor:pointer;padding:4px;transition:color .2s;line-height:1}
+.mclose:hover{color:var(--text)}
+.m-icon{font-size:2rem;display:block;margin-bottom:14px;text-align:center}
+.m-h{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:6px;text-align:center}
+.m-sub{font-size:.82rem;color:var(--muted);margin-bottom:22px;text-align:center}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.73rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Inter',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--border-glow)}
+.merr{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);border-radius:8px;padding:10px 14px;font-size:.8rem;color:#f87171;margin-bottom:14px;display:none}
+.mok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.28);border-radius:8px;padding:10px 14px;font-size:.8rem;color:#4ade80;margin-bottom:14px;display:none}
+.mbtn{width:100%;padding:12px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;border:none;border-radius:100px;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:500;cursor:pointer;transition:.2s;margin-top:6px}
+.mbtn:hover{opacity:.88;transform:translateY(-1px)}
+
+/* ADMIN SCROLL */
+.adm-body{max-height:70vh;overflow-y:auto;padding-right:4px}
+.adm-body::-webkit-scrollbar{width:4px}
+.adm-body::-webkit-scrollbar-track{background:transparent}
+.adm-body::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+.adm-sec{font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:18px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.adm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ANIM */
+@keyframes fup{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.rev{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+.rev.vis{opacity:1;transform:none}
+
+@media(max-width:640px){
+  nav .nav-ul{display:none}
+  .hero{padding:64px 5% 48px}
+  .stats{flex-direction:column}
+  .s-item{border-right:none;border-bottom:1px solid var(--border)}
+  .s-item:last-child{border-bottom:none}
+  .cta-b{padding:36px 22px;margin:20px 5%}
+  footer{flex-direction:column;align-items:flex-start}
+  .f-cr{text-align:left}
+  .adm-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div class="neb"><span></span><span></span><span></span></div>
+<div class="plnt plnt1"></div>
+<div class="plnt plnt2"></div>
+
+<div class="wrap">
+
+<nav>
+  <a class="logo" href="#"><span class="logo-dot"></span>Adi Breathe</a>
+  <ul class="nav-ul">
+    <li><a href="#panel">Panel</a></li>
+    <li><a href="#bot">Sewa Bot</a></li>
+    <li><a href="#cara">Cara Beli</a></li>
+    <li><a href="#history">History</a></li>
+  </ul>
+  <a href="#panel" class="nav-btn">Lihat Produk</a>
+</nav>
+
+<div class="hero">
+  <div class="badge"><span class="live"></span>Panel Pterodactyl &amp; Sewa Bot — Aktif Sekarang</div>
+  <h1>Hosting Bot &amp;<br><span class="grad">Sewa Bot Murah</span></h1>
+  <p class="hdesc">Panel Pterodactyl siap pakai dengan resource pilihan, plus sewa bot otomatis untuk bisnis kamu. Setup cepat, harga bersahabat.</p>
+  <div class="hbtns">
+    <a href="#panel" class="btn-p">Lihat Panel →</a>
+    <a href="#bot" class="btn-g">Sewa Bot</a>
+  </div>
+  <div class="stats">
+    <div class="s-item"><span class="s-num">500+</span><div class="s-lbl">Pelanggan Aktif</div></div>
+    <div class="s-item"><span class="s-num">99%</span><div class="s-lbl">Uptime</div></div>
+    <div class="s-item"><span class="s-num">&lt;1 jam</span><div class="s-lbl">Waktu Aktif</div></div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<section class="sec" id="panel">
+  <div class="rev">
+    <div class="slbl">// Panel Pterodactyl</div>
+    <h2 class="stitle">Panel Hosting Bot</h2>
+    <p class="sdesc">Panel Pterodactyl siap pakai — kelola bot, script, atau aplikasi kamu dengan kontrol penuh. Server stabil, uptime tinggi, cocok buat reseller maupun pemakaian pribadi.</p>
+  </div>
+  <div class="panel-grid" id="panel-grid">
+    <!-- filled by JS -->
+  </div>
+</section>
+
+<!-- BOT SECTION -->
+<section class="sec" id="bot">
+  <div class="rev">
+    <div class="slbl">// Sewa Bot</div>
+    <h2 class="stitle">Pilih Paket Bot Kamu</h2>
+    <p class="sdesc">Bot siap jalan, tanpa ribet setup server. Pilih antara bot reguler atau premium — langsung aktif setelah pembayaran.</p>
+  </div>
+  <div class="bot-tabs">
+    <button class="tab-btn active" onclick="switchTab('regular',this)">🤖 Bot Reguler</button>
+    <button class="tab-btn" onclick="switchTab('premium',this)">⭐ Bot Premium</button>
+  </div>
+
+  <!-- REGULAR -->
+  <div class="bot-content active" id="tab-regular">
+    <div class="sewa-grid" id="sewa-grid"><!-- JS --></div>
+  </div>
+
+  <!-- PREMIUM -->
+  <div class="bot-content" id="tab-premium">
+    <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:.83rem;color:#fbbf24;">
+      ⭐ <strong>Bot Premium</strong> — Fitur lebih lengkap, respon lebih cepat, prioritas support 24/7. Cocok buat kamu yang butuh performa ekstra.
+    </div>
+    <div class="prem-grid" id="prem-grid"><!-- JS --></div>
+  </div>
+</section>
+
+<!-- HISTORY -->
+<section class="sec" id="history">
+  <div class="rev">
+    <div class="slbl">// Riwayat Pembelian</div>
+    <h2 class="stitle">History Pembeli</h2>
+    <p class="sdesc">Daftar pembelian terbaru dari pelanggan setia Adi Breathe.</p>
+  </div>
+  <div class="history-wrap rev">
+    <div class="hist-head">
+      <div class="hist-title">📋 Transaksi Terbaru</div>
+      <div class="hist-count" id="hist-count">0 transaksi</div>
+    </div>
+    <div id="hist-body">
+      <div class="hist-empty"><span class="ico">🛸</span>Belum ada transaksi. Jadilah yang pertama!</div>
+    </div>
+  </div>
+</section>
+
+<!-- CARA BELI -->
+<section class="sec" id="cara">
+  <div class="rev">
+    <div class="slbl">// Cara Beli</div>
+    <h2 class="stitle">3 Langkah Gampang</h2>
+    <p class="sdesc">Proses cepat, produk aktif dalam hitungan menit.</p>
+  </div>
+  <div class="steps-g">
+    <div class="step-c rev"><span class="sn">01 ——</span><span class="si">🚀</span><div class="st">Pilih Produk</div><p class="sd">Pilih panel Pterodactyl atau paket sewa bot sesuai kebutuhan dan budget kamu.</p></div>
+    <div class="step-c rev"><span class="sn">02 ——</span><span class="si">💳</span><div class="st">Hubungi &amp; Bayar</div><p class="sd">Klik tombol beli, otomatis masuk ke WhatsApp. Konfirmasi dan bayar via QRIS / transfer bank.</p></div>
+    <div class="step-c rev"><span class="sn">03 ——</span><span class="si">⚡</span><div class="st">Aktif Seketika</div><p class="sd">Setelah pembayaran dikonfirmasi, panel atau bot langsung diaktifkan dalam &lt;1 jam.</p></div>
+  </div>
+</section>
+
+<!-- TESTI -->
+<section class="sec">
+  <div class="rev"><div class="slbl">// Testimoni</div><h2 class="stitle">Kata Mereka</h2></div>
+  <div class="testi-g">
+    <div class="tc rev"><div class="t-stars">★★★★★</div><p class="t-text">"Panel Pterodactyl-nya langsung bisa dipake, setupnya gampang banget. Cocok buat yang mau hosting bot sendiri."</p><div class="t-auth"><div class="t-av">👤</div><div><div class="t-name">Rizky A.</div><div class="t-sub">Reseller Panel, Jakarta</div></div></div></div>
+    <div class="tc rev"><div class="t-stars">★★★★★</div><p class="t-text">"Sewa bot paket 3 bulan, stabil banget ga pernah error. Admin fast response, harga murah meriah lagi."</p><div class="t-auth"><div class="t-av">👤</div><div><div class="t-name">Dinda P.</div><div class="t-sub">Online Shop Owner</div></div></div></div>
+    <div class="tc rev"><div class="t-stars">★★★★★</div><p class="t-text">"Bot premium worth it banget, respon cepet dan fiturnya lengkap. Under 30 menit udah aktif!"</p><div class="t-auth"><div class="t-av">👤</div><div><div class="t-name">Fajar M.</div><div class="t-sub">UMKM, Surabaya</div></div></div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-b rev">
+  <h2>Siap Mulai Sekarang?</h2>
+  <p>Hubungi kami via WhatsApp, aktif dalam &lt;1 jam.</p>
+  <div class="cta-btns">
+    <a href="https://wa.me/6285268752593" class="btn-p">💬 Chat WhatsApp</a>
+    <a href="#panel" class="btn-g">Lihat Produk</a>
+  </div>
+</div>
+
+<footer>
+  <div class="f-logo"><span>Adi Breathe</span></div>
+  <ul class="f-links">
+    <li><a href="#panel">Panel</a></li>
+    <li><a href="#bot">Sewa Bot</a></li>
+    <li><a href="#cara">Cara Beli</a></li>
+    <li><a href="#history">History</a></li>
+  </ul>
+  <div class="f-cr">© 2025 <strong>Adi Breathe</strong><br><a href="https://wa.me/6285268752593">+62 852-6875-2593</a></div>
+</footer>
+</div>
+
+<a href="https://wa.me/6285268752593" class="wa" title="WhatsApp">💬</a>
+<button class="adm-trig" onclick="openLogin()" title="Admin">⚙️</button>
+
+<!-- LOGIN MODAL -->
+<div class="overlay" id="ov-login">
+  <div class="mbox">
+    <button class="mclose" onclick="closeOv('ov-login')">×</button>
+    <span class="m-icon">🔐</span>
+    <div class="m-h">Admin Login</div>
+    <div class="m-sub">Masukkan password untuk mengakses panel admin.</div>
+    <div class="merr" id="lg-err">Password salah! Coba lagi.</div>
+    <div class="field"><label>Password</label><input type="password" id="lg-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="mbtn" onclick="doLogin()">Masuk →</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL MODAL -->
+<div class="overlay" id="ov-admin">
+  <div class="mbox" style="width:min(560px,94vw)">
+    <button class="mclose" onclick="closeOv('ov-admin')">×</button>
+    <span class="m-icon">⚙️</span>
+    <div class="m-h">Admin Panel</div>
+    <div class="m-sub">Edit semua harga. Perubahan langsung tersimpan.</div>
+    <div class="mok" id="adm-ok">✓ Harga berhasil disimpan!</div>
+    <div class="adm-body">
+      <div class="adm-sec">— Harga Panel Pterodactyl (Rp/bulan)</div>
+      <div class="adm-row" id="adm-panel-fields"><!-- JS --></div>
+      <div class="adm-sec">— Harga Sewa Bot Reguler</div>
+      <div class="adm-row" id="adm-sewa-fields"><!-- JS --></div>
+      <div class="adm-sec">— Harga Bot Premium</div>
+      <div class="adm-row" id="adm-prem-fields"><!-- JS --></div>
+    </div>
+    <button class="mbtn" onclick="saveAll()" style="margin-top:18px">💾 Simpan Semua</button>
+  </div>
+</div>
+
+<script>
+// ===== STARFIELD (performant — canvas only, no DOM stars) =====
+(function(){
+  const cv=document.getElementById('cv');
+  const ctx=cv.getContext('2d');
+  let W,H,stars=[];
+
+  function resize(){
+    W=cv.width=window.innerWidth;
+    H=cv.height=window.innerHeight;
+    makeStars();
+  }
+
+  function makeStars(){
+    stars=[];
+    // fewer stars for perf
+    const n=Math.min(Math.floor(W*H/7000),200);
+    for(let i=0;i<n;i++){
+      stars.push({
+        x:Math.random()*W, y:Math.random()*H,
+        r:Math.random()*1.2+0.15,
+        a:Math.random()*0.7+0.15,
+        da:(Math.random()*0.004+0.001)*(Math.random()<.5?1:-1),
+        twinkle:Math.random()<0.25
+      });
+    }
+  }
+
+  // ---- Shooting stars ----
+  const meteors=[];
+  function spawnMeteor(){
+    // random start from top-right area
+    const x=W*0.3+Math.random()*W*0.8;
+    const y=-20;
+    const angle=Math.PI/4+Math.random()*0.3-0.15; // ~45deg diagonal
+    const speed=3+Math.random()*4;
+    const len=80+Math.random()*120;
+    meteors.push({
+      x,y,
+      vx:Math.cos(angle+Math.PI/2)*speed,
+      vy:Math.sin(angle+Math.PI/2)*speed,
+      len,speed,
+      life:0,maxLife:1,
+      alpha:0,
+      w:1.2+Math.random()*1,
+      // tail
+      tx:x,ty:y,
+    });
+  }
+
+  // spawn interval (random)
+  let nextSpawn=0;
+  function maybeSpawn(t){
+    if(t>nextSpawn){
+      spawnMeteor();
+      nextSpawn=t+(2500+Math.random()*5000);
+    }
+  }
+
+  let last=0;
+  function draw(ts){
+    const dt=Math.min((ts-last)/16,3);last=ts;
+
+    ctx.clearRect(0,0,W,H);
+
+    // stars
+    stars.forEach(s=>{
+      if(s.twinkle){s.a+=s.da;if(s.a>0.9||s.a<0.1)s.da*=-1;}
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(210,225,255,${s.a})`;
+      ctx.fill();
+    });
+
+    // meteors
+    maybeSpawn(ts);
+    for(let i=meteors.length-1;i>=0;i--){
+      const m=meteors[i];
+      m.x+=m.vx*dt; m.y+=m.vy*dt;
+      // fade in/out
+      const progress=(m.y+100)/H;
+      if(progress<0.15) m.alpha=progress/0.15;
+      else if(progress>0.75) m.alpha=1-(progress-0.75)/0.25;
+      else m.alpha=1;
+      m.alpha=Math.max(0,Math.min(1,m.alpha));
+
+      if(m.y>H+100||m.x<-200||m.x>W+200){meteors.splice(i,1);continue;}
+
+      // draw gradient tail
+      const tx=m.x-Math.cos(Math.atan2(m.vy,m.vx))*m.len;
+      const ty=m.y-Math.sin(Math.atan2(m.vy,m.vx))*m.len;
+      const g=ctx.createLinearGradient(tx,ty,m.x,m.y);
+      g.addColorStop(0,'rgba(255,255,255,0)');
+      g.addColorStop(0.6,`rgba(180,210,255,${m.alpha*0.4})`);
+      g.addColorStop(1,`rgba(255,255,255,${m.alpha*0.9})`);
+
+      ctx.beginPath();
+      ctx.moveTo(tx,ty);
+      ctx.lineTo(m.x,m.y);
+      ctx.strokeStyle=g;
+      ctx.lineWidth=m.w;
+      ctx.lineCap='round';
+      ctx.stroke();
+
+      // glow head
+      ctx.beginPath();
+      ctx.arc(m.x,m.y,m.w*1.5,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,220,255,${m.alpha*0.9})`;
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize',resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+// ===== PARALLAX (throttled) =====
+let ticking=false;
+document.addEventListener('mousemove',e=>{
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(()=>{
+    const x=(e.clientX/window.innerWidth-.5)*8;
+    const y=(e.clientY/window.innerHeight-.5)*8;
+    document.getElementById('cv').style.transform=`translate(${x}px,${y}px)`;
+    ticking=false;
+  });
+});
+
+// ===== SCROLL REVEAL =====
+const ro=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.08});
+document.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+
+// ===== FAQ =====
+document.querySelectorAll('.fq').forEach(f=>{
+  f.querySelector('.fq-q').addEventListener('click',()=>{
+    const o=f.classList.contains('open');
+    document.querySelectorAll('.fq').forEach(x=>x.classList.remove('open'));
+    if(!o)f.classList.add('open');
+  });
+});
+
+// ===== PRICE DATA =====
+const defaultPrices={
+  panel:[
+    {gb:'1 GB',price:'Rp 2.000',note:''},
+    {gb:'2 GB',price:'Rp 3.000',note:''},
+    {gb:'3 GB',price:'Rp 5.000',note:''},
+    {gb:'4 GB',price:'Rp 6.000',note:''},
+    {gb:'5 GB',price:'Rp 8.000',note:''},
+    {gb:'6 GB',price:'Rp 10.000',note:''},
+    {gb:'7 GB',price:'Rp 12.000',note:''},
+    {gb:'8 GB',price:'Rp 14.000',note:''},
+    {gb:'9 GB',price:'Rp 16.000',note:''},
+    {gb:'10 GB',price:'Rp 18.000',note:''},
+    {gb:'Unlimited',price:'Rp 20.000',note:'',hot:true},
+  ],
+  sewa:[
+    {dur:'1 Bulan',price:'Rp 12.000'},
+    {dur:'2 Bulan',price:'Rp 22.000'},
+    {dur:'3 Bulan',price:'Rp 30.000'},
+    {dur:'4 Bulan',price:'Rp 38.000'},
+    {dur:'5 Bulan',price:'Rp 45.000'},
+    {dur:'Permanen',price:'Rp 100.000',perm:true},
+  ],
+  premium:[
+    {dur:'1 Bulan',price:'Rp 6.000'},
+    {dur:'2 Bulan',price:'Rp 11.000'},
+    {dur:'3 Bulan',price:'Rp 16.000'},
+    {dur:'4 Bulan',price:'Rp 21.000'},
+    {dur:'5 Bulan',price:'Rp 25.000'},
+    {dur:'Permanen',price:'Rp 50.000',perm:true},
+  ]
+};
+
+function loadData(){
+  try{
+    const s=localStorage.getItem('ab_v2');
+    if(s)return JSON.parse(s);
+  }catch(e){}
+  return JSON.parse(JSON.stringify(defaultPrices));
+}
+function saveData(d){localStorage.setItem('ab_v2',JSON.stringify(d));}
+let prices=loadData();
+
+// ===== WA LINK BUILDERS =====
+function waPanel(gb,price){
+  const msg=encodeURIComponent(`Halo Mimin, saya mau beli Panel Pterodactyl ${gb} dengan harga ${price} 🚀\nMohon info lebih lanjut ya kak!`);
+  return `https://wa.me/6285268752593?text=${msg}`;
+}
+function waSewa(dur,price,isPrem){
+  const type=isPrem?'Bot Premium':'Sewa Bot';
+  const msg=encodeURIComponent(`Halo Mimin, saya mau beli ${type} durasi ${dur} dengan harga ${price} 🤖\nMohon info lebih lanjut ya kak!`);
+  return `https://wa.me/6285268752593?text=${msg}`;
+}
+function waPermSewa(price,isPrem){
+  const type=isPrem?'Bot Premium Permanen':'Sewa Bot Permanen';
+  const msg=encodeURIComponent(`Halo Mimin, saya mau beli ${type} dengan harga ${price} ⭐\nNote: Saya paham harga permanen bisa berubah sewaktu-waktu sesuai kebijakan owner.\nMohon info pembayarannya ya kak!`);
+  return `https://wa.me/6285268752593?text=${msg}`;
+}
+
+// ===== RENDER PANEL =====
+function renderPanel(){
+  const g=document.getElementById('panel-grid');
+  g.innerHTML=prices.panel.map(p=>`
+    <a href="${waPanel(p.gb,p.price)}" target="_blank" class="panel-card rev" onclick="addHistory('Panel Pterodactyl ${p.gb}','${p.price}','panel')">
+      ${p.hot?'<div class="pc-badge">🔥 Best</div>':''}
+      <div class="pc-gb">${p.gb}</div>
+      <div class="pc-label">RAM / Storage</div>
+      <div class="pc-price">${p.price}</div>
+      <div class="pc-note">per bulan</div>
+    </a>
+  `).join('');
+  g.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+}
+
+// ===== RENDER SEWA =====
+function renderSewa(){
+  const g=document.getElementById('sewa-grid');
+  g.innerHTML=prices.sewa.map(p=>`
+    <a href="${p.perm?waPermSewa(p.price,false):waSewa(p.dur,p.price,false)}" target="_blank" class="sewa-card${p.perm?' perm':''} rev" onclick="addHistory('Sewa Bot ${p.dur}','${p.price}','sewa')">
+      <div class="sc-dur">${p.dur}</div>
+      <div class="sc-lbl">${p.perm?'Sekali bayar':'Sewa bot reguler'}</div>
+      <div class="sc-price">${p.price}</div>
+      ${p.perm?'<div class="sc-mood">Harga bisa berubah-ubah<br>sesuai mood owner 😌</div><div class="sc-badge">⚠️ Harga fluktuatif</div>':''}
+    </a>
+  `).join('');
+  g.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+}
+
+// ===== RENDER PREMIUM =====
+function renderPrem(){
+  const g=document.getElementById('prem-grid');
+  g.innerHTML=prices.premium.map(p=>`
+    <a href="${p.perm?waPermSewa(p.price,true):waSewa(p.dur,p.price,true)}" target="_blank" class="prem-card rev" onclick="addHistory('Bot Premium ${p.dur}','${p.price}','premium')">
+      <div class="prem-dur">${p.dur}</div>
+      <div class="prem-lbl">${p.perm?'Sekali bayar':'Bot premium'}</div>
+      <div class="prem-price">${p.price}</div>
+      ${p.perm?'<div class="sc-mood" style="color:#d97706">Harga bisa berubah-ubah<br>sesuai mood owner 😌</div><div class="crown">⭐ Permanen</div>':'<div class="crown">⭐ Premium</div>'}
+    </a>
+  `).join('');
+  g.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+}
+
+function renderAll(){renderPanel();renderSewa();renderPrem();}
+renderAll();
+
+// ===== TAB =====
+function switchTab(id,btn){
+  document.querySelectorAll('.bot-content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ===== HISTORY =====
+function loadHistory(){return JSON.parse(localStorage.getItem('ab_hist')||'[]');}
+function saveHistory(h){localStorage.setItem('ab_hist',JSON.stringify(h.slice(0,50)));}
+
+function addHistory(prod,price,type){
+  // called on click — slight delay so WA opens first
+  setTimeout(()=>{
+    const h=loadHistory();
+    const now=new Date();
+    h.unshift({prod,price,type,time:now.toLocaleString('id-ID',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})});
+    saveHistory(h);
+    renderHistory();
+  },200);
+}
+
+function renderHistory(){
+  const h=loadHistory();
+  const el=document.getElementById('hist-body');
+  const cnt=document.getElementById('hist-count');
+  cnt.textContent=`${h.length} transaksi`;
+  if(!h.length){
+    el.innerHTML='<div class="hist-empty"><span class="ico">🛸</span>Belum ada transaksi. Jadilah yang pertama!</div>';
+    return;
+  }
+  const list=document.createElement('div');
+  list.className='hist-list';
+  list.innerHTML=h.map(i=>`
+    <div class="hist-item">
+      <div class="hi-left">
+        <div class="hi-name">${i.prod}</div>
+        <div class="hi-prod">${i.type==='panel'?'Panel Pterodactyl':i.type==='premium'?'Bot Premium':'Sewa Bot'}</div>
+      </div>
+      <div class="hi-right">
+        <div class="hi-price">${i.price}</div>
+        <div class="hi-time">${i.time}</div>
+        <div class="hi-badge ${i.type}">${i.type==='panel'?'🖥️ Panel':i.type==='premium'?'⭐ Premium':'🤖 Sewa'}</div>
+      </div>
+    </div>
+  `).join('');
+  el.innerHTML='';
+  el.appendChild(list);
+}
+renderHistory();
+
+// ===== ADMIN =====
+const PASS='ruht';
+
+function openLogin(){
+  document.getElementById('lg-pw').value='';
+  document.getElementById('lg-err').style.display='none';
+  document.getElementById('ov-login').classList.add('on');
+  setTimeout(()=>document.getElementById('lg-pw').focus(),120);
+}
+function closeOv(id){document.getElementById(id).classList.remove('on');}
+function doLogin(){
+  if(document.getElementById('lg-pw').value===PASS){
+    closeOv('ov-login');openAdmin();
+  } else {
+    document.getElementById('lg-err').style.display='block';
+    document.getElementById('lg-pw').value='';
+    document.getElementById('lg-pw').focus();
+  }
+}
+
+function openAdmin(){
+  // build panel fields
+  const pf=document.getElementById('adm-panel-fields');
+  pf.innerHTML=prices.panel.map((p,i)=>`
+    <div class="field"><label>${p.gb}</label><input type="text" id="ap-${i}" value="${p.price}"></div>
+  `).join('');
+  // sewa fields
+  const sf=document.getElementById('adm-sewa-fields');
+  sf.innerHTML=prices.sewa.map((p,i)=>`
+    <div class="field"><label>${p.dur}</label><input type="text" id="as-${i}" value="${p.price}"></div>
+  `).join('');
+  // premium fields
+  const pmf=document.getElementById('adm-prem-fields');
+  pmf.innerHTML=prices.premium.map((p,i)=>`
+    <div class="field"><label>${p.dur}</label><input type="text" id="apm-${i}" value="${p.price}"></div>
+  `).join('');
+
+  document.getElementById('adm-ok').style.display='none';
+  document.getElementById('ov-admin').classList.add('on');
+}
+
+function saveAll(){
+  prices.panel.forEach((p,i)=>{const el=document.getElementById('ap-'+i);if(el)p.price=el.value||p.price;});
+  prices.sewa.forEach((p,i)=>{const el=document.getElementById('as-'+i);if(el)p.price=el.value||p.price;});
+  prices.premium.forEach((p,i)=>{const el=document.getElementById('apm-'+i);if(el)p.price=el.value||p.price;});
+  saveData(prices);
+  renderAll();
+  document.getElementById('adm-ok').style.display='block';
+  setTimeout(()=>document.getElementById('adm-ok').style.display='none',3000);
+}
+
+document.querySelectorAll('.overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');});
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.overlay.on').forEach(m=>m.classList.remove('on'));});
+</script>
+</body>
+</html>
